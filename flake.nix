@@ -29,17 +29,18 @@
 	  pkgs.mkalias
 	  pkgs.neovim
  	  pkgs.tmux
+	  pkgs.vscode
+	  pkgs.grpcurl
         ];
 
       homebrew = {
 	enable = true;
 	casks = [
 	  "the-unarchiver"
-	  "visual-studio-code"
 	  "ghostty"
         ];
       };
-      
+            
       system.activationScripts.applications.text = let
         env = pkgs.buildEnv {
           name = "system-applications";
@@ -79,6 +80,7 @@
       # Default editor
       environment.variables.EDITOR = "nvim";
     };
+
   in
   {
     # Build darwin flake using:
