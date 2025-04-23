@@ -31,13 +31,20 @@
  	  pkgs.tmux
 	  pkgs.vscode
 	  pkgs.grpcurl
+	  pkgs.ghostty
+
+	  pkgs.oh-my-zsh
+    	  pkgs.zsh
+    	  pkgs.zsh-completions
+    	  pkgs.zsh-powerlevel10k
+    	  pkgs.zsh-syntax-highlighting
+    	  pkgs.zsh-history-substring-search
         ];
 
       homebrew = {
 	enable = true;
 	casks = [
 	  "the-unarchiver"
-	  "ghostty"
         ];
       };
             
@@ -79,6 +86,18 @@
  
       # Default editor
       environment.variables.EDITOR = "nvim";
+
+      # zsh and oh-my-zsh
+      programs.zsh = {
+        enable = true;
+	theme = "agnoster";
+    	ohMyZsh = {
+          enable = true;
+          plugins = [ "git" "python" "man" "zsh-syntax-highlighting" "zsh-history-substring-search" ];
+    	};    
+      };
+      users.users.USER.shell = pkgs.zsh;
+
     };
 
   in
