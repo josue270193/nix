@@ -32,9 +32,6 @@ in
       command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
       eval "$(pyenv init -)"
 
-      pyenv versions --bare | grep -q '^3\.14' || pyenv install 3.14
-      pyenv global 3.14
-
       # JENV Setup
       if command -v jenv >/dev/null; then
         export PATH="$HOME/.jenv/bin:$PATH"
@@ -132,6 +129,25 @@ in
       
       echo "jenv setup complete. Available versions:"
       jenv versions || echo "Failed to list jenv versions"
+    '';
+
+    # Automatically configure pyenv PYTHON
+    pyenv-setup = lib.hm.dag.entryAfter [ "installPackages" ] ''
+      echo "Setting up pyenv..."
+
+      export PYENV_ROOT="$HOME/.pyenv"
+      export PATH="${pkgs.pyenv}/bin:$PYENV_ROOT/bin:$PATH"
+      eval "$(pyenv init -)"
+
+      if ! pyenv versions --bare | grep -q '^3\.14'; then
+        echo "Installing Python 3.14..."
+        pyenv install 3.14
+      else
+        echo "Python 3.14 already installed"
+      fi
+
+      pyenv global 3.14
+      echo "pyenv setup complete"
     '';
 
     # Automatically configure nvm NODEJS

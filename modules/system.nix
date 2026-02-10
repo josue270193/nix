@@ -25,7 +25,7 @@
   homebrew = {
     enable = true;
     brews = [ "jenv" ];
-    casks = [ "the-unarchiver" "ghostty" "macs-fan-control" "bruno" "zen" "openvpn-connect" "google-chrome" ];
+    casks = [ "the-unarchiver" "ghostty" "macs-fan-control" "bruno" "zen" "openvpn-connect" "google-chrome" "docker" ];
   };
 
   system.activationScripts.applications.text = let
