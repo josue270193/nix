@@ -15,7 +15,9 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     mkdir -p $out
-    cp -r $(ls -A $src | grep -v -w test | awk -v path=$src '{printf "%s/%s ", path, $src}') $out/
+    for f in $(ls -A $src | grep -v -w test); do
+      cp -r "$src/$f" "$out/"
+    done
   '';
 
   meta = {

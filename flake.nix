@@ -2,16 +2,15 @@
   description = "Josues-MacBook-Pro nix-darwin system flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs";
-    nix-darwin.url = "github:nix-darwin/nix-darwin";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
+    nix-darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-homebrew, flake-utils }: {
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-homebrew }: {
     # Build darwin flake using:
     # $ darwin-rebuild build --flake .
     darwinConfigurations."Josues-MacBook-Pro" = nix-darwin.lib.darwinSystem {

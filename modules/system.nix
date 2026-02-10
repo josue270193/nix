@@ -16,7 +16,6 @@
     jmeter
     jetbrains-toolbox
     vscode
-    google-chrome
     awscli2
     vlc-bin
     cargo
@@ -26,14 +25,14 @@
   homebrew = {
     enable = true;
     brews = [ "jenv" ];
-    casks = [ "the-unarchiver" "ghostty" "macs-fan-control" "bruno" "zen" "openvpn-connect"];
+    casks = [ "the-unarchiver" "ghostty" "macs-fan-control" "bruno" "zen" "openvpn-connect" "google-chrome" ];
   };
 
   system.activationScripts.applications.text = let
     env = pkgs.buildEnv {
       name = "system-applications";
       paths = config.environment.systemPackages;
-      pathsToLink = "/Applications";
+      pathsToLink = [ "/Applications" ];
     };
   in lib.mkForce ''
     echo "setting up /Applications..." >&2

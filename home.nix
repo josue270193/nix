@@ -32,7 +32,7 @@ in
       command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
       eval "$(pyenv init -)"
 
-      pyenv install 3.14
+      pyenv versions --bare | grep -q '^3\.14' || pyenv install 3.14
       pyenv global 3.14
 
       # JENV Setup
@@ -62,12 +62,6 @@ in
   # Configuration per project
   programs.direnv.enable = true;
   programs.git.enable = true;
-
-  services.gpg-agent = {
-    enable = true;
-    defaultCacheTtl = 1800;
-    enableSshSupport = true;
-  };
 
   home.stateVersion = "25.11"; # match your system or nixpkgs version
 
@@ -144,12 +138,13 @@ in
     nvm-setup = lib.hm.dag.entryAfter [ "installPackages" ] ''
       echo "Setting up NVM..."
       
-      # Clean up existing NVM if needed
-      [ -d "$HOME/.nvm" ] && rm -rf "$HOME/.nvm"
-      mkdir "$HOME/.nvm"  
+      # Ensure NVM directory exists and sync nvm files
+      mkdir -p "$HOME/.nvm"
 
-      # Copy nvm installation
-      cp -R "${pkgs.callPackage ./pkgs/nvm.nix { }}"/* "$HOME/.nvm/"
+      # Copy nvm scripts (preserves existing versions/aliases)
+      cp -f "${pkgs.callPackage ./pkgs/nvm.nix { }}"/nvm.sh "$HOME/.nvm/"
+      cp -f "${pkgs.callPackage ./pkgs/nvm.nix { }}"/nvm-exec "$HOME/.nvm/"
+      cp -Rf "${pkgs.callPackage ./pkgs/nvm.nix { }}"/bash_completion "$HOME/.nvm/" 2>/dev/null || true
 
       # Make nvm.sh executable
       chmod +x "$HOME/.nvm/nvm.sh"

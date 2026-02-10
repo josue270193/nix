@@ -42,11 +42,8 @@ cd ~/.config/nix-config
 ### 3. Build and Activate Configuration
 
 ```bash
-# First time setup - installs home-manager and all packages
-nix run home-manager/master -- switch --flake .
-
-# If your flake has a specific configuration name:
-# nix run home-manager/master -- switch --flake .#your-config-name
+# First time setup - builds and activates the full system (nix-darwin + home-manager)
+sudo nix run nix-darwin -- switch --flake .
 ```
 
 ### 4. Verify Installation
@@ -61,7 +58,7 @@ After making changes to your configuration files:
 
 ```bash
 cd ~/.config/nix-config
-home-manager switch --flake .
+sudo nix run nix-darwin -- switch --flake .
 ```
 
 ## 📝 Common Tasks
@@ -69,23 +66,18 @@ home-manager switch --flake .
 ### Update Flake Inputs
 ```bash
 nix flake update
-home-manager switch --flake .
+sudo nix run nix-darwin -- switch --flake .
 ```
 
 ### Check What Will Change (Dry Run)
 ```bash
-home-manager switch --flake . --dry-run
+nix build .#darwinConfigurations.Josues-MacBook-Pro.system --dry-run
 ```
 
 ### Rollback to Previous Generation
 ```bash
-home-manager generations
-home-manager switch --switch-generation <generation-number>
-```
-
-### List Installed Packages
-```bash
-home-manager packages
+darwin-rebuild --list-generations
+sudo darwin-rebuild switch --rollback
 ```
 
 ## 🛠️ Customization
@@ -93,7 +85,7 @@ home-manager packages
 ### Updating Your Configuration
 
 1. Edit the relevant files in `modules/` or `home.nix`
-2. Run `home-manager switch --flake .`
+2. Run `sudo nix run nix-darwin -- switch --flake .`
 3. Commit and push your changes
 
 ### Adding New Packages
@@ -133,20 +125,14 @@ home.packages = with pkgs; [
 Try rebuilding:
 ```bash
 nix-collect-garbage -d
-home-manager switch --flake .
+sudo nix run nix-darwin -- switch --flake .
 ```
 
 ### Configuration doesn't apply
 Make sure you're in the repository directory and using the correct flake reference:
 ```bash
 cd ~/.config/nix-config
-home-manager switch --flake .
-```
-
-### Need to start fresh
-```bash
-rm -rf ~/.config/home-manager
-home-manager switch --flake ~/.config/nix-config
+sudo nix run nix-darwin -- switch --flake .
 ```
 
 ## 📚 Resources
