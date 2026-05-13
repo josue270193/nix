@@ -8,6 +8,9 @@ in
 {
   home.username = "josue";
   home.homeDirectory = "/Users/josue";
+  home.sessionPath = [
+    "$HOME/.local/bin"
+  ];
 
   home.packages = [
     pkgs.pyenv
