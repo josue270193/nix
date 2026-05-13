@@ -39,7 +39,11 @@
     done
   '';
 
-  nix.settings.experimental-features = "nix-command flakes";
+  # Determinate Nix manages its own daemon — let it. nix-darwin would otherwise
+  # try to install/configure Nix itself and refuse to activate.
+  # (Determinate already enables flakes + nix-command globally, so we don't
+  # need to set nix.settings.experimental-features here.)
+  nix.enable = false;
 
   system.configurationRevision = null; # This is overridden in the flake
 

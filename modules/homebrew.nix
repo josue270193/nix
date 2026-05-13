@@ -21,9 +21,7 @@
     # CLI tools from homebrew. Prefer nixpkgs first; only land here when
     # there's a real reason (binary cask, signed app, or nix-broken package).
     # (mise lives in home.nix via programs.mise — nixpkgs has it.)
-    brews = [
-      "mas"      # Mac App Store CLI — required to install masApps below
-    ];
+    brews = [ ];
 
     # GUI apps installed as macOS .app bundles via homebrew cask.
     casks = [
@@ -34,7 +32,6 @@
 
       # Browsers
       "google-chrome"
-      "zen"
 
       # Terminal / dev tools
       "ghostty"
@@ -54,14 +51,15 @@
       "slack"
     ];
 
-    # Mac App Store apps — installed via `mas` (signed-in Apple ID required).
-    # IDs come from `mas search "<name>"`; verify on a fresh machine if any of
-    # these versions get superseded by separately-listed App Store entries.
-    masApps = {
-      "Microsoft Word"       = 462054704;
-      "Microsoft Excel"      = 462058435;
-      "Microsoft PowerPoint" = 462062816;
-      "WhatsApp"             = 310633997;
+    masApps = { 
+      # "Microsoft Word"       = 462054704;
+      # "Microsoft Excel"      = 462058435;
+      # "Microsoft PowerPoint" = 462062816;
+      # "WhatsApp"             = 310633997;
     };
+    # Skipped: Office and WhatsApp are already installed via the Microsoft
+    # 365 installer / direct download, which `mas` can't manage (apps it
+    # didn't install itself). Add entries here only for apps you want to
+    # install fresh from the App Store on a clean machine.
   };
 }

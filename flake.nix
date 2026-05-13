@@ -13,7 +13,7 @@
   outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-homebrew }: {
     # Build darwin flake using:
     # $ darwin-rebuild build --flake .
-    darwinConfigurations."Josues-MacBook-Pro" = nix-darwin.lib.darwinSystem {
+    darwinConfigurations."Josue-MacBook-Pro-M5-Pro" = nix-darwin.lib.darwinSystem {
       modules = [
         ./modules/system.nix
         ./modules/homebrew.nix
@@ -41,6 +41,6 @@
         config.allowUnfree = true;
       };
     };
-    darwinPackages = self.darwinConfigurations."Josues-MacBook-Pro".pkgs;
+    darwinPackages = self.darwinConfigurations."Josue-MacBook-Pro-M5-Pro".pkgs;
   };
 }
