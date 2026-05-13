@@ -103,12 +103,26 @@ home.packages = with pkgs; [
 
 ```
 .
-├── flake.nix           # Flake configuration and outputs
-├── flake.lock          # Locked flake inputs
-├── home.nix            # Main home-manager configuration
-├── modules/            # Custom modules
-├── pkgs/               # Custom package definitions
-└── ghostty/            # Ghostty terminal configuration
+├── flake.nix                       # Flake configuration and outputs
+├── flake.lock                      # Locked flake inputs
+├── home.nix                        # Home-manager config (user env, mise, zsh)
+├── modules/
+│   ├── system.nix                  # nix-darwin core: packages, user, shell
+│   ├── homebrew.nix                # GUI casks + any brews managed via nix-homebrew
+│   └── macos-defaults.nix          # `system.defaults` — dock, finder, trackpad, keyboard…
+└── ghostty/                        # Ghostty terminal configuration
+```
+
+## 🧩 Runtime Version Management
+
+Language toolchains (Python, Node, Java) are managed by [**mise**](https://mise.jdx.dev/), configured in `home.nix` under `programs.mise`. Global pins live there; per-project pins should be checked in as `.mise.toml` or `.tool-versions` in each repo.
+
+`mise` replaces the older `pyenv` / `jenv` / `nvm` stack — there is no longer any need to install or initialize those tools by hand.
+
+```bash
+mise ls               # what's installed
+mise use python@3.13  # pin for the current project
+mise install          # install everything from .mise.toml
 ```
 
 ## ⚠️ Important Notes

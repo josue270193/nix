@@ -1,5 +1,9 @@
 { pkgs, config, lib, ... }:
 
+# Core nix-darwin system configuration — packages, user, shell, and the
+# /Applications symlink workaround. GUI/cask installs live in
+# ./homebrew.nix; macOS user preferences live in ./macos-defaults.nix.
+
 {
   system.primaryUser = "josue";
   nixpkgs.config.allowUnfree = true;
@@ -11,23 +15,12 @@
     grpcurl
     curl
     gnupg
-    slack
-    spotify
-    jmeter
-    jetbrains-toolbox
-    vscode
     awscli2
-    vlc-bin
     cargo
     rustc
   ];
 
-  homebrew = {
-    enable = true;
-    brews = [ "jenv" ];
-    casks = [ "the-unarchiver" "ghostty" "macs-fan-control" "bruno" "zen" "openvpn-connect" "google-chrome" "docker" ];
-  };
-
+  # Spotlight-indexable aliases for Nix-installed .app bundles.
   system.activationScripts.applications.text = let
     env = pkgs.buildEnv {
       name = "system-applications";
@@ -64,15 +57,5 @@
     shell = pkgs.zsh;
     name = "josue";
     home = "/Users/josue";
-  };
-
-  system.defaults = {
-    dock.autohide = true;
-    dock.mru-spaces = false;
-    finder.AppleShowAllExtensions = true;
-    finder.FXPreferredViewStyle = "clmv";
-    loginwindow.LoginwindowText = "josue270193@gmail.com";
-    screencapture.location = "~/Pictures/screenshots";
-    screensaver.askForPasswordDelay = 10;
   };
 }

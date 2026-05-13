@@ -14,8 +14,10 @@
     # Build darwin flake using:
     # $ darwin-rebuild build --flake .
     darwinConfigurations."Josues-MacBook-Pro" = nix-darwin.lib.darwinSystem {
-      modules = [ 
+      modules = [
         ./modules/system.nix
+        ./modules/homebrew.nix
+        ./modules/macos-defaults.nix
         nix-homebrew.darwinModules.nix-homebrew
         {
           nix-homebrew = {

@@ -1,10 +1,12 @@
 { config, pkgs, lib, ... }:
 
-let
-  java8 = pkgs.openjdk8;  
-  java21 = pkgs.openjdk21;
-  java25 = pkgs.openjdk25;
-in
+# Home-manager configuration for user `josue`.
+#
+# Runtime version management is delegated entirely to mise — one tool for
+# python, node, java, and anything else added later. The previous
+# pyenv/jenv/nvm trio (and the ~80 lines of activation shell that glued
+# them together) is gone.
+
 {
   home.username = "josue";
   home.homeDirectory = "/Users/josue";
@@ -12,58 +14,78 @@ in
     "$HOME/.local/bin"
   ];
 
-  home.packages = [
-    pkgs.pyenv
-    pkgs.curl
-    pkgs.wget
-    pkgs.gawk
-    pkgs.coreutils
-    pkgs.gnutar
-    pkgs.xz
-    pkgs.nodejs_22
-    (pkgs.callPackage ./pkgs/nvm.nix {})  # nvm
+  home.packages = with pkgs; [
+    curl
+    wget
+    gawk
+    coreutils
+    gnutar
+    xz
+    htop
   ];
 
   programs.zsh = {
     enable = true;
+    enableCompletion = true;
+    syntaxHighlighting.enable = true;
+
     shellAliases = {
-      ll = "ls -la";
+      ll  = "ls -la";
+      gs  = "git status";
+      gp  = "git pull";
+      gco = "git checkout";
+      k   = "kubectl";
+      d   = "docker";
     };
+
     initContent = ''
-      # PYENV Setup
-      export PYENV_ROOT="$HOME/.pyenv"
-      command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-      eval "$(pyenv init -)"
-
-      # JENV Setup
-      if command -v jenv >/dev/null; then
-        export PATH="$HOME/.jenv/bin:$PATH"
-        eval "$(jenv init -)"
-      fi
-
-      # NVM Setup
-      export NVM_DIR="$HOME/.nvm"
-      [ -s "${pkgs.callPackage ./pkgs/nvm.nix { }}/nvm.sh" ] && \. "${pkgs.callPackage ./pkgs/nvm.nix { }}/nvm.sh" --no-use
+      # mise activates itself (handled by programs.mise.enableZshIntegration)
+      # so PATH for installed runtimes is set up automatically.
 
       # Use starship prompt last
       eval "$(starship init zsh)"
-
-      # Setup global npm bin
-      export PATH="$HOME/.npm-global/bin:$PATH"
     '';
+  };
 
-    enableCompletion = true;
-    syntaxHighlighting.enable = true;
+  # Polyglot runtime version manager. Replaces pyenv + jenv + nvm.
+  # Global pins live below; per-project pins go in `.mise.toml` /
+  # `.tool-versions` checked into each repo.
+  programs.mise = {
+    enable = true;
+    enableZshIntegration = true;
+
+    globalConfig = {
+      tools = {
+        python = "latest";
+        node = "lts";
+        java = "21";
+      };
+      settings = {
+        # auto-install missing versions when entering a project dir
+        idiomatic_version_file_enable_tools = [ "python" "node" "java" ];
+      };
+    };
   };
 
   programs.starship.enable = true;
   programs.bat.enable = true;
   programs.fzf.enable = true;
-  # Configuration per project
-  programs.direnv.enable = true;
-  programs.git.enable = true;
+  programs.direnv.enable = true;     # per-project env via .envrc
 
-  home.stateVersion = "25.11"; # match your system or nixpkgs version
+  programs.git = {
+    enable = true;
+    aliases = {
+      s    = "status";
+      p    = "pull";
+      co   = "checkout";
+      br   = "branch";
+      ci   = "commit";
+      st   = "status -sb";
+      last = "log -1 HEAD";
+      lg   = "log --oneline --graph --decorate --all";
+      unstage = "reset HEAD --";
+    };
+  };
 
   # Copy ghostty configs
   home.file = {
@@ -71,133 +93,5 @@ in
     "Library/Application Support/com.mitchellh.ghostty/inside-the-matrix.glsl".source = ./ghostty/inside-the-matrix.glsl;
   };
 
-  # Automatically configure jenv JAVA
-  home.activation = {
-
-    env-setup = lib.hm.dag.entryAfter [ "installPackages" ] ''
-      echo "Setting up jenv Java versions..."
-
-      # Ensure Homebrew is in PATH
-      export PATH="/opt/homebrew/bin:$PATH"
-      
-      # Check if jenv is available
-      if ! command -v jenv >/dev/null 2>&1; then
-        echo "Warning: jenv not found. Please ensure 'brew install jenv' was successful." >&2
-        exit 0
-      fi
-      
-      # Initialize jenv properly
-      export JENV_ROOT="$HOME/.jenv"
-      export PATH="$JENV_ROOT/bin:$PATH"
-      
-      # Temporarily disable problematic export plugin during activation
-      EXPORT_HOOK_FILE="$JENV_ROOT/plugins/export/etc/jenv.d/init/export_jenv_hook.zsh"
-      if [ -f "$EXPORT_HOOK_FILE" ]; then
-        mv "$EXPORT_HOOK_FILE" "$EXPORT_HOOK_FILE.bak" 2>/dev/null || true
-      fi
-      
-      eval "$(jenv init -)" || echo "jenv init failed, continuing..."
-      
-      # Restore the export hook file
-      if [ -f "$EXPORT_HOOK_FILE.bak" ]; then
-        mv "$EXPORT_HOOK_FILE.bak" "$EXPORT_HOOK_FILE" 2>/dev/null || true
-      fi
-
-
-      # Function to safely add Java version
-      add_java_version() {
-        local java_path="$1"
-        local java_name="$2"
-        
-        if [ -d "$java_path" ]; then
-          echo "Adding $java_name from $java_path"
-          jenv add "$java_path" || echo "Failed to add $java_name, might already exist"
-        else
-          echo "Warning: $java_name not found at $java_path"
-        fi
-      }
-      
-      # Add Nix JDKs
-      add_java_version "${java8}" "Java 8"      
-      add_java_version "${java21}" "Java 21"
-      add_java_version "${java25}" "Java 25"
-      
-      # Set Java 21 as global default
-      echo "Setting Java 21 as global default..."
-      jenv global 21 || jenv global 21.0 || echo "Could not set Java 21 as global"
-      
-      # Enable export plugin
-      jenv enable-plugin export || echo "Export plugin already enabled or failed to enable"
-      jenv rehash
-      
-      echo "jenv setup complete. Available versions:"
-      jenv versions || echo "Failed to list jenv versions"
-    '';
-
-    # Automatically configure pyenv PYTHON
-    pyenv-setup = lib.hm.dag.entryAfter [ "installPackages" ] ''
-      echo "Setting up pyenv..."
-
-      export PYENV_ROOT="$HOME/.pyenv"
-      export PATH="${pkgs.pyenv}/bin:$PYENV_ROOT/bin:$PATH"
-      eval "$(pyenv init -)"
-
-      if ! pyenv versions --bare | grep -q '^3\.14'; then
-        echo "Installing Python 3.14..."
-        pyenv install 3.14
-      else
-        echo "Python 3.14 already installed"
-      fi
-
-      pyenv global 3.14
-      echo "pyenv setup complete"
-    '';
-
-    # Automatically configure nvm NODEJS
-    nvm-setup = lib.hm.dag.entryAfter [ "installPackages" ] ''
-      echo "Setting up NVM..."
-      
-      # Ensure NVM directory exists and sync nvm files
-      mkdir -p "$HOME/.nvm"
-
-      # Copy nvm scripts (preserves existing versions/aliases)
-      cp -f "${pkgs.callPackage ./pkgs/nvm.nix { }}"/nvm.sh "$HOME/.nvm/"
-      cp -f "${pkgs.callPackage ./pkgs/nvm.nix { }}"/nvm-exec "$HOME/.nvm/"
-      cp -Rf "${pkgs.callPackage ./pkgs/nvm.nix { }}"/bash_completion "$HOME/.nvm/" 2>/dev/null || true
-
-      # Make nvm.sh executable
-      chmod +x "$HOME/.nvm/nvm.sh"
-      
-      # Source nvm
-      export NVM_DIR="$HOME/.nvm"
-      source "$NVM_DIR/nvm.sh"
-      
-      # Ensure required tools are available in PATH
-      export PATH="\
-      ${pkgs.curl}/bin:\
-      ${pkgs.wget}/bin:\
-      ${pkgs.gawk}/bin:\
-      ${pkgs.coreutils}/bin:\
-      ${pkgs.gnutar}/bin:\
-      ${pkgs.xz}/bin:\
-      $PATH"
-      
-      # Verify all required tools
-      for tool in curl wget awk tar xz; do
-        if ! command -v $tool >/dev/null; then
-          echo "Error: Missing required tool: $tool"
-          exit 1
-        fi
-      done
-
-      echo "Installing Node.js ${pkgs.nodejs_22.version}"
-      mkdir -p $NVM_DIR/versions/node
-      ln -s ${pkgs.nodejs_22} $NVM_DIR/versions/node/v${pkgs.nodejs_22.version}
-      nvm alias default ${pkgs.nodejs_22.version}      
-      nvm use --delete-prefix default
-      npm set prefix ~/.npm-global      
-
-      echo "NVM setup complete"
-    '';
-  };
+  home.stateVersion = "25.11"; # match your system or nixpkgs version
 }

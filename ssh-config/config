@@ -1,0 +1,14 @@
+Host cryptomate-github.com
+  HostName github.com
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519_cryptomate
+
+Host josue270193-github.com
+  HostName github.com
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519_josue270193
+
+Host th-rosenheim.de
+  HostName inf-git.th-rosenheim.de
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519_throsenheim
