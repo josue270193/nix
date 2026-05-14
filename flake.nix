@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nix-darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager/release-25.11";
@@ -10,7 +11,13 @@
     nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-homebrew }: {
+  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, home-manager, nix-homebrew }:
+  let
+    pkgs-unstable = import nixpkgs-unstable {
+      system = "aarch64-darwin";
+      config.allowUnfree = true;
+    };
+  in {
     # Build darwin flake using:
     # $ darwin-rebuild build --flake .
     darwinConfigurations."Josue-MacBook-Pro-M5-Pro" = nix-darwin.lib.darwinSystem {
@@ -31,6 +38,7 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
+            extraSpecialArgs = { inherit pkgs-unstable; };
             users.josue = import ./home.nix;
           };
         }

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, pkgs-unstable, ... }:
 
 # Home-manager configuration for user `josue`.
 #
@@ -52,6 +52,7 @@
   # `.tool-versions` checked into each repo.
   programs.mise = {
     enable = true;
+    package = pkgs-unstable.mise; # pinned to unstable for latest bug fixes
     enableZshIntegration = true;
 
     globalConfig = {

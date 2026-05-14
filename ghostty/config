@@ -4,7 +4,7 @@ custom-shader-animation = always
 font-family = TX-02
 font-size = 19
 font-thicken = true
-theme = light:xcodelighthc,dark:xcodedarkhc
+theme = Catppuccin Macchiato
 quick-terminal-animation-duration = 0
 keybind = global:super+grave_accent=toggle_quick_terminal
 cursor-style = block
