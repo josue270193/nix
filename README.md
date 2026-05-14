@@ -1,4 +1,4 @@
-# Nix Configuration
+# Nix Configuration.
 
 Personal Nix configuration using flakes and home-manager for macOS.
 
